@@ -1,0 +1,125 @@
+---
+title: "Assessment 1.1"
+author: "yunyi chen, s4647071"
+date: "02/09/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Rmarkdown editing
+This is an R markdown document. It is a file of HTML or PDF or word document to show data's running.Please find more details from <https://rmarkdown.rstudio.com/lesson-8.html>.
+
+```{r}
+
+library(tidyverse)
+
+fastfood <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv")
+
+```
+```{r}
+
+head(fastfood,10)
+
+```
+```{r}
+library(knitr)
+
+knitr::kable(head(fastfood[, 1:5], "pipe"))
+```
+```{r}
+
+filter(fastfood,calories>1000)
+```
+```{r}
+dont_eat_this <- fastfood %>% select(restaurant, item, calories, total_fat, total_carb) %>% filter(total_fat>40 & total_carb>80)
+
+dont_eat_this
+```
+```{r}
+
+library(skimr)
+skim(fastfood)
+
+```
+```{r}
+fastfood %>% count(restaurant)
+```
+```{r}
+fastfood %>% group_by(restaurant) %>% summarise(calories=mean(calories))
+
+
+```
+```{r}
+
+fastfood <- fastfood %>% group_by(restaurant) %>% mutate(average_calories=mean(calories)) %>% ungroup()
+
+glimpse(fastfood) %>% select(restaurant, average_calories)
+
+```
+```{r}
+library(ggplot2)
+ggplot(fastfood, aes(restaurant, total_fat)) + geom_col()
+#Bar chart makes the difference of the datas more clear, the height means the number.
+```
+```{r}
+
+max_total_fat <- fastfood %>% group_by(restaurant) %>% select(restaurant, total_fat) %>% summarise(max_total_fat=max(total_fat)) %>% mutate(max_total_fat)
+
+glimpse(max_total_fat)
+```
+
+```{r}
+
+mcdonalds_data <- select(fastfood, restaurant, sugar, protein) %>% filter(restaurant=="macdonals")
+
+ggplot(mcdonalds_data) + geom_point(mapping = aes(sugar, protein))
+
+```
+```{r}
+
+fastfood$salad <- as_factor(fastfood$salad)
+class(fastfood$salad)
+```
+
+```{r}
+fastfood$calories_type <- cut(fastfood$calories, 3, labels = c("low", "med", "high"))
+
+
+```
+
+```{r}
+
+fastfood %>% group_by(restaurant) %>% ungroup() %>% ggplot(aes(restaurant,calories_type))+geom_boxplot()+facet_wrap(~restaurant)+coord_flip()+theme_dark()
+
+
+```
+```{r}
+
+trans_fat_percent <- mutate(fastfood,trans_fat_percent = fastfood$trans_fat/fastfood$total_fat*100)
+
+trans_fat_percent
+
+```
+```{r}
+ggplot(trans_fat_percent, aes(restaurant,trans_fat_percent))+geom_count()+facet_grid()+theme_dark()+coord_flip()
+
+
+```
+```{r}
+
+mean(fastfood$total_fat)
+
+arbys_total_fat <- fastfood %>% filter(restaurant=="Arbys")
+mean(arbys_total_fat$total_fat)
+```
+
+
+```{r}
+
+ggplot(fastfood, aes(restaurant, total_fat))+ geom_col()+theme_bw()+coord_flip()
+
+```
+
